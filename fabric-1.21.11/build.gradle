@@ -1,0 +1,43 @@
+plugins {
+    id "fabric-loom"
+}
+
+base {
+    archivesName = "${rootProject.property("archives_base_name")}-fabric-${rootProject.property("minecraft_12111")}"
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.property("minecraft_12111")}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}"
+
+    modCompileOnly files(rootProject.file("deps/sodium-fabric-1.21.11.jar"))
+    modRuntimeOnly files(rootProject.file("deps/sodium-fabric-1.21.11.jar"))
+}
+
+loom {
+    mixin {
+        useLegacyMixinAp = false
+    }
+}
+
+sourceSets {
+    main {
+        java.srcDir(rootProject.file("common-src/1.21.11/java"))
+        resources.srcDir(rootProject.file("common-src/1.21.11/resources"))
+    }
+}
+
+processResources {
+    def props = [
+            version          : project.version,
+            minecraft_version: rootProject.property("minecraft_12111"),
+            loader_version   : rootProject.property("fabric_loader_version")
+    ]
+
+    inputs.properties(props)
+
+    filesMatching("fabric.mod.json") {
+        expand(props)
+    }
+}

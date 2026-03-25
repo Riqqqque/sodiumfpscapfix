@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "sodiumfpscapfix",
+  "version": "${version}",
+  "name": "Sodium FPS Cap Fix",
+  "description": "Replaces Sodium's FPS cap slider with a textbox and removes the 260 FPS ceiling.",
+  "license": "Unlicense",
+  "authors": [
+    "Cristian"
+  ],
+  "environment": "client",
+  "mixins": [
+    "sodiumfpscapfix.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=17",
+    "sodium": "*"
+  }
+}

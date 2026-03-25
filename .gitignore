@@ -1,0 +1,16 @@
+/.gradle/
+/.tmp-*/
+/META-INF/
+/.idea/
+/.vscode/
+*.iml
+*.ipr
+*.iws
+*.log
+hs_err_pid*
+replay_pid*
+run/
+logs/
+crash-reports/
+out/
+**/build/

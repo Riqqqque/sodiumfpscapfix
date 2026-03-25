@@ -1,0 +1,32 @@
+license="Unlicense"
+
+[[mixins]]
+config="sodiumfpscapfix.mixins.json"
+
+[[mods]]
+modId="sodiumfpscapfix"
+version="${version}"
+displayName="Sodium FPS Cap Fix"
+displayTest="IGNORE_ALL_VERSION"
+description='''Replaces Sodium's FPS cap slider with a textbox and removes the 260 FPS ceiling.'''
+
+[[dependencies.sodiumfpscapfix]]
+modId="neoforge"
+type="required"
+versionRange="[${neoforge_version},)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.sodiumfpscapfix]]
+modId="minecraft"
+type="required"
+versionRange="[${minecraft_version}]"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.sodiumfpscapfix]]
+modId="sodium"
+type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="CLIENT"
