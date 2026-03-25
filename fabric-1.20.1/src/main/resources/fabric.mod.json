@@ -5,6 +5,7 @@
   "name": "Sodium FPS Cap Fix",
   "description": "Replaces Sodium's FPS cap slider with a textbox and removes the 260 FPS ceiling.",
   "license": "Unlicense",
+  "icon": "assets/sodiumfpscapfix/icon.png",
   "authors": [
     "Cristian"
   ],
