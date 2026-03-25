@@ -7,7 +7,7 @@
   "license": "Unlicense",
   "icon": "assets/sodiumfpscapfix/icon.png",
   "authors": [
-    "Cristian"
+    "Rique"
   ],
   "environment": "client",
   "mixins": [
