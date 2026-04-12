@@ -7,15 +7,23 @@ Sodium FPS Cap Fix replaces Sodium's FPS cap slider with a textbox and removes t
 - Fabric 1.20.1
 - Fabric 1.21.1
 - Fabric 1.21.11
+- Fabric 26.1.2
 - NeoForge 1.21.1
 - NeoForge 1.21.11
+- NeoForge 26.1.2
 
 ## Build
 
-Run:
+Run the main multi-version build with:
 
 ```powershell
 .\gradlew.bat buildAll
+```
+
+Build the 26.1.2 targets with:
+
+```powershell
+.\mc-26.1.2-build\gradlew.bat buildAll
 ```
 
 The project expects the Sodium dependency jars in the `deps/` folder.

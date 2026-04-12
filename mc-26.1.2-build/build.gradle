@@ -1,0 +1,38 @@
+plugins {
+    id "base"
+}
+
+allprojects {
+    version = rootProject.property("mod_version")
+    group = rootProject.property("maven_group")
+
+    repositories {
+        mavenCentral()
+        maven {
+            name = "Fabric"
+            url = "https://maven.fabricmc.net/"
+        }
+        maven {
+            name = "NeoForged"
+            url = "https://maven.neoforged.net/releases/"
+        }
+    }
+}
+
+subprojects {
+    apply plugin: "java"
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(25)
+        withSourcesJar()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 25
+        options.encoding = "UTF-8"
+    }
+}
+
+tasks.register("buildAll") {
+    dependsOn(subprojects.collect { it.tasks.named("build") })
+}

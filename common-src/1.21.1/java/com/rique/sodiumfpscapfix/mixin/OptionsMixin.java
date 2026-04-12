@@ -36,4 +36,9 @@ public abstract class OptionsMixin {
     private void sodiumfpscapfix$loadSavedFpsLimit(CallbackInfo ci) {
         FpsCapPersistence.load().ifPresent(this.framerateLimit()::set);
     }
+
+    @Inject(method = "save", at = @At("TAIL"))
+    private void sodiumfpscapfix$syncSavedFpsLimit(CallbackInfo ci) {
+        FpsCapPersistence.save(this.framerateLimit().get());
+    }
 }
