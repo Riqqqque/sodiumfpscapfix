@@ -28,7 +28,7 @@ public final class FpsCapSupport {
         for (int i = 0; i < text.length(); i++) {
             char character = text.charAt(i);
 
-            if (!Character.isDigit(character)) {
+            if (!isAsciiDigit(character)) {
                 throw new NumberFormatException("Unexpected character: " + character);
             }
 
@@ -46,6 +46,10 @@ public final class FpsCapSupport {
         }
 
         return clamp((int) value);
+    }
+
+    public static boolean isAsciiDigit(int character) {
+        return character >= '0' && character <= '9';
     }
 
     public static Codec<Integer> codec() {

@@ -205,7 +205,7 @@ public final class FpsCapTextBoxControl implements Control {
             for (int i = 0; i < text.length(); i++) {
                 char character = text.charAt(i);
 
-                if (Character.isDigit(character)) {
+                if (FpsCapSupport.isAsciiDigit(character)) {
                     builder.append(character);
                 }
             }

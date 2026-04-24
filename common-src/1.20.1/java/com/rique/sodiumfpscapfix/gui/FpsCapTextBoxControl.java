@@ -53,7 +53,7 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
             );
             this.editBox.setBordered(false);
             this.editBox.setMaxLength(Integer.toString(FpsCapConstants.MAX_FPS_CAP).length());
-            this.editBox.setFilter(text -> text.isEmpty() || text.chars().allMatch(Character::isDigit));
+            this.editBox.setFilter(text -> text.isEmpty() || text.chars().allMatch(FpsCapSupport::isAsciiDigit));
             this.editBox.setResponder(this::onTextChanged);
             this.editBox.setTextColor(0xFFFFFFFF);
             this.editBox.setTextColorUneditable(0xFFA0A0A0);

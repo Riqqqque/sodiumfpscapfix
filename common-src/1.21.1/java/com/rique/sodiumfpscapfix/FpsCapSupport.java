@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 
 public final class FpsCapSupport {
     private static final String FPS_LIMIT_KEY = "options.framerateLimit";
+    private static final Component FPS_LIMIT_NAME = Component.translatable(FPS_LIMIT_KEY);
     private static final Codec<Integer> CODEC = Codec.INT;
 
     private FpsCapSupport() {
@@ -16,7 +17,7 @@ public final class FpsCapSupport {
     }
 
     public static boolean isFrameRateLimitName(Component name) {
-        return name.getString().equals(Component.translatable(FPS_LIMIT_KEY).getString());
+        return name.getString().equals(FPS_LIMIT_NAME.getString());
     }
 
     public static int clamp(int value) {
@@ -33,7 +34,7 @@ public final class FpsCapSupport {
         for (int i = 0; i < text.length(); i++) {
             char character = text.charAt(i);
 
-            if (!Character.isDigit(character)) {
+            if (!isAsciiDigit(character)) {
                 throw new NumberFormatException("Unexpected character: " + character);
             }
 
@@ -51,6 +52,10 @@ public final class FpsCapSupport {
         }
 
         return clamp((int) value);
+    }
+
+    public static boolean isAsciiDigit(int character) {
+        return character >= '0' && character <= '9';
     }
 
     public static Codec<Integer> codec() {
