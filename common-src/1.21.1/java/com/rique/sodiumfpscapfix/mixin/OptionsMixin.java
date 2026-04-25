@@ -2,9 +2,9 @@ package com.rique.sodiumfpscapfix.mixin;
 
 import com.rique.sodiumfpscapfix.FpsCapPersistence;
 import com.rique.sodiumfpscapfix.FpsCapSupport;
+import com.rique.sodiumfpscapfix.UnlockedFpsCapValueSet;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
-import net.minecraft.client.UnlockedFpsCapValueSet;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,7 +27,7 @@ public abstract class OptionsMixin {
     )
     private void sodiumfpscapfix$unlockFpsLimit(Args args) {
         if ("options.framerateLimit".equals(args.get(0))) {
-            args.set(3, new UnlockedFpsCapValueSet(args.get(3)));
+            args.set(3, UnlockedFpsCapValueSet.wrap(args.get(3)));
             args.set(4, FpsCapSupport.codec());
         }
     }

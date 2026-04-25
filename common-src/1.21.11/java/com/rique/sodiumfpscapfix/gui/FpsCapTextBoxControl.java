@@ -119,7 +119,8 @@ public final class FpsCapTextBoxControl implements Control {
             this.editBox.setFocused(clickedBox);
 
             if (clickedBox) {
-                return this.editBox.mouseClicked(event, doubleClick);
+                this.editBox.mouseClicked(event, doubleClick);
+                return true;
             }
 
             return clickedRow;
@@ -187,8 +188,16 @@ public final class FpsCapTextBoxControl implements Control {
 
         private void updateTextBoxBounds() {
             this.editBox.setX(this.getBoxX() + BOX_PADDING);
-            this.editBox.setY(this.getBoxY() + 2);
-            this.editBox.setWidth(FpsCapConstants.TEXT_BOX_WIDTH - (BOX_PADDING * 2));
+            this.editBox.setY(this.getTextY());
+            this.editBox.setWidth(this.getInnerBoxWidth());
+        }
+
+        private int getInnerBoxWidth() {
+            return FpsCapConstants.TEXT_BOX_WIDTH - (BOX_PADDING * 2);
+        }
+
+        private int getTextY() {
+            return this.getBoxY() + Math.max(0, (FpsCapConstants.TEXT_BOX_HEIGHT - Minecraft.getInstance().font.lineHeight + 1) / 2);
         }
 
         private int getBoxX() {
