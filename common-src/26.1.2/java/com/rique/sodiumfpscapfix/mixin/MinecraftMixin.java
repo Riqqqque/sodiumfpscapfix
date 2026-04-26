@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
-    @ModifyConstant(method = "runTick(Z)V", constant = @Constant(intValue = 260))
+    @ModifyConstant(method = "renderFrame", constant = @Constant(intValue = 260))
     private int sodiumfpscapfix$raiseFpsCutoff(int original) {
         return FpsCapConstants.UNLIMITED_CUTOFF;
     }
 
     @Redirect(
-            method = "runTick(Z)V",
+            method = "renderFrame",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/FramerateLimiter;limitDisplayFPS(I)V"
