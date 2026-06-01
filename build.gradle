@@ -35,6 +35,29 @@ subprojects {
     }
 }
 
-tasks.register("buildAll") {
+def modrinthUploadDir = layout.projectDirectory.dir("modrinth-upload")
+
+tasks.register("collectModrinthJars", Copy) {
     dependsOn(subprojects.collect { it.tasks.named("build") })
+
+    from(subprojects.collect { it.layout.buildDirectory.dir("libs") }) {
+        include "*.jar"
+        exclude "*-sources.jar"
+    }
+
+    into(modrinthUploadDir)
+
+    doFirst {
+        delete(fileTree(modrinthUploadDir.asFile) {
+            include "sodiumfpscapfix-fabric-1.20.1-*.jar"
+            include "sodiumfpscapfix-fabric-1.21.1-*.jar"
+            include "sodiumfpscapfix-fabric-1.21.11-*.jar"
+            include "sodiumfpscapfix-neoforge-1.21.1-*.jar"
+            include "sodiumfpscapfix-neoforge-1.21.11-*.jar"
+        })
+    }
+}
+
+tasks.register("buildAll") {
+    dependsOn(tasks.named("collectModrinthJars"))
 }
