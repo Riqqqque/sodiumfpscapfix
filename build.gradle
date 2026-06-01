@@ -41,7 +41,7 @@ tasks.register("collectModrinthJars", Copy) {
     dependsOn(subprojects.collect { it.tasks.named("build") })
 
     from(subprojects.collect { it.layout.buildDirectory.dir("libs") }) {
-        include "*.jar"
+        include "*-${project.version}.jar"
         exclude "*-sources.jar"
     }
 
