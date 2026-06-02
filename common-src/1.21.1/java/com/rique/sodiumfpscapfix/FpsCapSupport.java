@@ -1,23 +1,17 @@
 package com.rique.sodiumfpscapfix;
 
 import com.mojang.serialization.Codec;
-import net.caffeinemc.mods.sodium.client.gui.options.Option;
-import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public final class FpsCapSupport {
-    private static final String FPS_LIMIT_KEY = "options.framerateLimit";
-    private static final Component FPS_LIMIT_NAME = Component.translatable(FPS_LIMIT_KEY);
+    private static final ResourceLocation FPS_LIMIT_OPTION_ID = ResourceLocation.parse("sodium:general.framerate_limit");
     private static final Codec<Integer> CODEC = Codec.INT;
 
     private FpsCapSupport() {
     }
 
-    public static boolean isFrameRateLimitOption(Option<?> option) {
-        return isFrameRateLimitName(option.getName());
-    }
-
-    public static boolean isFrameRateLimitName(Component name) {
-        return name.getString().equals(FPS_LIMIT_NAME.getString());
+    public static boolean isFrameRateLimitId(ResourceLocation id) {
+        return FPS_LIMIT_OPTION_ID.equals(id);
     }
 
     public static int clamp(int value) {

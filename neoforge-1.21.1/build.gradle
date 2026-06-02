@@ -7,7 +7,7 @@ base {
 }
 
 dependencies {
-    compileOnly files(rootProject.file("deps/sodium-neoforge-1.21.1.jar"))
+    compileOnly files(rootProject.file("deps/sodium-neoforge-1.21.1-0.8.12-alpha.4-mod.jar"))
 }
 
 sourceSets {

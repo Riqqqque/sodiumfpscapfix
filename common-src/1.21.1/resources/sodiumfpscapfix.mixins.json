@@ -3,11 +3,11 @@
   "package": "com.rique.sodiumfpscapfix.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "IntegerOptionMixin",
     "MinecraftMixin",
-    "OptionImplAccessor",
-    "OptionImplMixin",
+    "OptionAccessor",
     "OptionsMixin",
-    "SodiumGameOptionPagesMixin"
+    "StatefulOptionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

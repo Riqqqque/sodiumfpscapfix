@@ -3,30 +3,35 @@ package com.rique.sodiumfpscapfix.gui;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.rique.sodiumfpscapfix.FpsCapConstants;
 import com.rique.sodiumfpscapfix.FpsCapSupport;
-import net.caffeinemc.mods.sodium.client.gui.options.Option;
+import net.caffeinemc.mods.sodium.client.config.structure.IntegerOption;
+import net.caffeinemc.mods.sodium.client.config.structure.Option;
+import net.caffeinemc.mods.sodium.client.gui.ColorTheme;
+import net.caffeinemc.mods.sodium.client.gui.Colors;
+import net.caffeinemc.mods.sodium.client.gui.options.control.AbstractOptionList;
 import net.caffeinemc.mods.sodium.client.gui.options.control.Control;
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public final class FpsCapTextBoxControl implements Control<Integer> {
-    private final Option<Integer> option;
+public final class FpsCapTextBoxControl implements Control {
+    private final IntegerOption option;
 
-    public FpsCapTextBoxControl(Option<Integer> option) {
+    public FpsCapTextBoxControl(IntegerOption option) {
         this.option = option;
     }
 
     @Override
-    public Option<Integer> getOption() {
+    public Option getOption() {
         return this.option;
     }
 
     @Override
-    public ControlElement<Integer> createElement(Dim2i dim) {
-        return new TextBoxControlElement(this.option, dim);
+    public ControlElement createElement(Screen screen, AbstractOptionList list, Dim2i dim, ColorTheme theme) {
+        return new TextBoxControlElement(list, this.option, dim, theme);
     }
 
     @Override
@@ -34,15 +39,17 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
         return FpsCapConstants.TEXT_BOX_WIDTH + 12;
     }
 
-    private static final class TextBoxControlElement extends ControlElement<Integer> {
+    private static final class TextBoxControlElement extends ControlElement {
         private static final int BOX_PADDING = 3;
 
+        private final IntegerOption option;
         private final EditBox editBox;
         private boolean syncingText;
 
-        private TextBoxControlElement(Option<Integer> option, Dim2i dim) {
-            super(option, dim);
+        private TextBoxControlElement(AbstractOptionList list, IntegerOption option, Dim2i dim, ColorTheme theme) {
+            super(list, dim, theme);
 
+            this.option = option;
             this.editBox = new EditBox(
                     Minecraft.getInstance().font,
                     0,
@@ -55,10 +62,15 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
             this.editBox.setMaxLength(Integer.toString(FpsCapConstants.MAX_FPS_CAP).length());
             this.editBox.setFilter(text -> text.isEmpty() || text.chars().allMatch(FpsCapSupport::isAsciiDigit));
             this.editBox.setResponder(this::onTextChanged);
-            this.editBox.setTextColor(0xFFFFFFFF);
-            this.editBox.setTextColorUneditable(0xFFA0A0A0);
+            this.editBox.setTextColor(Colors.FOREGROUND);
+            this.editBox.setTextColorUneditable(Colors.FOREGROUND_DISABLED);
 
             this.syncFromOption();
+        }
+
+        @Override
+        public Option getOption() {
+            return this.option;
         }
 
         @Override
@@ -73,27 +85,32 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
             }
 
             this.updateTextBoxBounds();
-            this.editBox.setEditable(this.option.isAvailable());
+            this.editBox.setEditable(this.option.isEnabled());
+            this.editBox.setVisible(this.option.showControl());
 
             super.render(graphics, mouseX, mouseY, delta);
+
+            if (!this.option.showControl()) {
+                return;
+            }
 
             int boxX = this.getBoxX();
             int boxY = this.getBoxY();
             int boxLimitX = boxX + FpsCapConstants.TEXT_BOX_WIDTH;
             int boxLimitY = boxY + FpsCapConstants.TEXT_BOX_HEIGHT;
 
-            this.drawRect(graphics, boxX, boxY, boxLimitX, boxLimitY, this.option.isAvailable() ? 0x70000000 : 0x40000000);
-            this.drawBorder(graphics, boxX, boxY, boxLimitX, boxLimitY, this.editBox.isFocused() ? 0xFFFFFFFF : 0x60FFFFFF);
+            this.drawRect(graphics, boxX, boxY, boxLimitX, boxLimitY, this.option.isEnabled() ? Colors.BACKGROUND_MEDIUM : Colors.BACKGROUND_LIGHT);
+            this.drawBorder(graphics, boxX, boxY, boxLimitX, boxLimitY, this.editBox.isFocused() ? Colors.BUTTON_BORDER : 0x60FFFFFF);
             this.editBox.render(graphics, mouseX, mouseY, delta);
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (!this.option.isAvailable()) {
+            if (!this.option.isEnabled()) {
                 return false;
             }
 
-            boolean clickedRow = this.dim.containsCursor(mouseX, mouseY);
+            boolean clickedRow = this.isMouseOver(mouseX, mouseY);
             boolean clickedBox = this.isMouseOverBox(mouseX, mouseY);
 
             this.focused = clickedRow;
@@ -108,19 +125,24 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
         }
 
         @Override
+        public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            return this.editBox.isFocused() && this.editBox.mouseReleased(mouseX, mouseY, button);
+        }
+
+        @Override
+        public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+            return this.editBox.isFocused() && this.editBox.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        }
+
+        @Override
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
             if (!this.editBox.isFocused()) {
                 return false;
             }
 
-            if (keyCode == InputConstants.KEY_ESCAPE) {
-                this.syncFromOption();
-                this.editBox.setFocused(false);
-                this.focused = false;
-                return true;
-            }
-
-            if (keyCode == InputConstants.KEY_RETURN || keyCode == InputConstants.KEY_NUMPADENTER) {
+            if (keyCode == InputConstants.KEY_ESCAPE
+                    || keyCode == InputConstants.KEY_RETURN
+                    || keyCode == InputConstants.KEY_NUMPADENTER) {
                 this.syncFromOption();
                 this.editBox.setFocused(false);
                 this.focused = false;
@@ -150,11 +172,12 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
                 return;
             }
 
-            this.option.setValue(FpsCapSupport.parseAndClamp(text));
+            this.option.modifyValue(FpsCapSupport.parseAndClamp(text));
+            this.option.getValidatedValue();
         }
 
         private void syncFromOption() {
-            this.setText(Integer.toString(FpsCapSupport.clamp(this.option.getValue())));
+            this.setText(Integer.toString(FpsCapSupport.clamp(this.option.getValidatedValue())));
         }
 
         private void setText(String value) {
@@ -178,11 +201,11 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
         }
 
         private int getBoxX() {
-            return this.dim.getLimitX() - FpsCapConstants.TEXT_BOX_WIDTH - 6;
+            return this.getLimitX() - FpsCapConstants.TEXT_BOX_WIDTH - 6;
         }
 
         private int getBoxY() {
-            return this.dim.getCenterY() - (FpsCapConstants.TEXT_BOX_HEIGHT / 2);
+            return this.getCenterY() - (FpsCapConstants.TEXT_BOX_HEIGHT / 2);
         }
 
         private boolean isMouseOverBox(double mouseX, double mouseY) {

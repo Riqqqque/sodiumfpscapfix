@@ -11,8 +11,8 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${rootProject.property("fabric_loader_version")}"
 
-    modCompileOnly files(rootProject.file("deps/sodium-fabric-1.21.1.jar"))
-    modRuntimeOnly files(rootProject.file("deps/sodium-fabric-1.21.1.jar"))
+    modCompileOnly files(rootProject.file("deps/sodium-fabric-1.21.1-0.8.12-alpha.4.jar"))
+    modRuntimeOnly files(rootProject.file("deps/sodium-fabric-1.21.1-0.8.12-alpha.4.jar"))
 }
 
 loom {
