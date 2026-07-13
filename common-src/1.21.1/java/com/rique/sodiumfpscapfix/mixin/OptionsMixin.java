@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Options.class)
@@ -20,26 +19,38 @@ public abstract class OptionsMixin {
 
     @ModifyConstant(
             method = "<init>",
-            slice = @Slice(
-                    from = @At(value = "CONSTANT", args = "stringValue=options.framerateLimit")
-            ),
             constant = @Constant(intValue = 26, ordinal = 0),
-            require = 1
+            require = 0
     )
     private int sodiumfpscapfix$unlockFpsLimitRange(int original) {
-        return FpsCapConstants.MAX_FPS_CAP / 10;
+        return FpsCapConstants.MAX_FPS_CAP;
     }
 
     @ModifyConstant(
             method = "<init>",
-            slice = @Slice(
-                    from = @At(value = "CONSTANT", args = "stringValue=options.framerateLimit")
-            ),
             constant = @Constant(intValue = 260, ordinal = 0),
-            require = 1
+            require = 0
     )
     private int sodiumfpscapfix$unlockFpsLimitCodecRange(int original) {
         return FpsCapConstants.MAX_FPS_CAP;
+    }
+
+    @ModifyConstant(
+            method = "method_42511(I)Ljava/lang/Integer;",
+            constant = @Constant(intValue = 10),
+            require = 0
+    )
+    private static int sodiumfpscapfix$keepFpsLimitSliderValueExact(int original) {
+        return 1;
+    }
+
+    @ModifyConstant(
+            method = "method_42557(Ljava/lang/Integer;)I",
+            constant = @Constant(intValue = 10),
+            require = 0
+    )
+    private static int sodiumfpscapfix$keepFpsLimitOptionValueExact(int original) {
+        return 1;
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))

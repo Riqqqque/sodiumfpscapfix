@@ -88,13 +88,9 @@ public final class FpsCapTextBoxControl implements Control {
 
             this.updateTextBoxBounds();
             this.editBox.setEditable(this.option.isEnabled());
-            this.editBox.setVisible(this.option.showControl());
+            this.editBox.setVisible(true);
 
             super.render(graphics, mouseX, mouseY, delta);
-
-            if (!this.option.showControl()) {
-                return;
-            }
 
             int boxX = this.getBoxX();
             int boxY = this.getBoxY();
@@ -172,7 +168,8 @@ public final class FpsCapTextBoxControl implements Control {
                 return;
             }
 
-            this.option.modifyValue(FpsCapSupport.parseAndClamp(text));
+            int value = FpsCapSupport.parseAndClamp(text);
+            this.option.modifyValue(value);
             this.option.getValidatedValue();
         }
 
@@ -182,8 +179,12 @@ public final class FpsCapTextBoxControl implements Control {
 
         private void setText(String value) {
             this.syncingText = true;
-            this.editBox.setValue(value);
-            this.syncingText = false;
+
+            try {
+                this.editBox.setValue(value);
+            } finally {
+                this.syncingText = false;
+            }
         }
 
         private void updateTextBoxBounds() {

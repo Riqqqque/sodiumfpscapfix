@@ -15,6 +15,71 @@ dependencies {
     modRuntimeOnly files(rootProject.file("deps/sodium-fabric-1.21.1-0.8.12-alpha.4.jar"))
 }
 
+configurations {
+    legacySodiumRemapper
+}
+
+dependencies {
+    legacySodiumRemapper "net.fabricmc:tiny-remapper:0.13.0"
+}
+
+def legacySodiumInput = rootProject.file("deps/sodium-fabric-1.21.1.jar")
+def legacySodiumNamedJar = layout.buildDirectory.file("remapped-deps/sodium-fabric-1.21.1-named.jar")
+def jellysquidSodiumInput = rootProject.file("deps/sodium-fabric-1.21.1-0.5.11.jar")
+def jellysquidSodiumNamedJar = layout.buildDirectory.file("remapped-deps/sodium-fabric-1.21.1-0.5.11-named.jar")
+
+tasks.register("remapLegacyFabricSodium", JavaExec) {
+    inputs.file(legacySodiumInput)
+    outputs.file(legacySodiumNamedJar)
+
+    classpath = configurations.legacySodiumRemapper
+    mainClass = "net.fabricmc.tinyremapper.Main"
+
+    doFirst {
+        def mappingFiles = fileTree(layout.projectDirectory.dir(".gradle/loom-cache/source_mappings")) {
+            include "*.tiny"
+        }.files
+
+        if (mappingFiles.isEmpty()) {
+            throw new GradleException("Loom source mappings are missing. Run the main compile task first.")
+        }
+
+        args = [
+                legacySodiumInput.absolutePath,
+                legacySodiumNamedJar.get().asFile.absolutePath,
+                mappingFiles.sort { it.name }.first().absolutePath,
+                "intermediary",
+                "named"
+        ]
+    }
+}
+
+tasks.register("remapJellysquidFabricSodium", JavaExec) {
+    inputs.file(jellysquidSodiumInput)
+    outputs.file(jellysquidSodiumNamedJar)
+
+    classpath = configurations.legacySodiumRemapper
+    mainClass = "net.fabricmc.tinyremapper.Main"
+
+    doFirst {
+        def mappingFiles = fileTree(layout.projectDirectory.dir(".gradle/loom-cache/source_mappings")) {
+            include "*.tiny"
+        }.files
+
+        if (mappingFiles.isEmpty()) {
+            throw new GradleException("Loom source mappings are missing. Run the main compile task first.")
+        }
+
+        args = [
+                jellysquidSodiumInput.absolutePath,
+                jellysquidSodiumNamedJar.get().asFile.absolutePath,
+                mappingFiles.sort { it.name }.first().absolutePath,
+                "intermediary",
+                "named"
+        ]
+    }
+}
+
 loom {
     mixin {
         useLegacyMixinAp = false
@@ -26,6 +91,45 @@ sourceSets {
         java.srcDir(rootProject.file("common-src/1.21.1/java"))
         resources.srcDir(rootProject.file("common-src/1.21.1/resources"))
     }
+
+    legacySodium {
+        java.srcDir(rootProject.file("common-src/1.21.1-neoforge/java"))
+        compileClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.main.compileClasspath.filter {
+            !it.name.contains("sodium-fabric-1.21.1-0.8.12-alpha.4")
+        }
+        compileClasspath += files(legacySodiumNamedJar)
+    }
+
+    jellysquidSodium {
+        java.srcDir(rootProject.file("common-src/1.21.1-jellysquid/java"))
+        compileClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.main.compileClasspath.filter {
+            !it.name.contains("sodium-fabric-1.21.1-0.8.12-alpha.4")
+        }
+        compileClasspath += files(jellysquidSodiumNamedJar)
+    }
+}
+
+tasks.named("compileLegacySodiumJava") {
+    dependsOn(tasks.named("compileJava"))
+    dependsOn(tasks.named("remapLegacyFabricSodium"))
+}
+
+tasks.named("compileJellysquidSodiumJava") {
+    dependsOn(tasks.named("compileJava"))
+    dependsOn(tasks.named("remapJellysquidFabricSodium"))
+}
+
+tasks.named("jar") {
+    from(sourceSets.legacySodium.output)
+    from(sourceSets.jellysquidSodium.output)
+}
+
+tasks.named("sourcesJar") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets.legacySodium.allSource)
+    from(sourceSets.jellysquidSodium.allSource)
 }
 
 processResources {

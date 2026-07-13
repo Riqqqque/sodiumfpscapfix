@@ -2,7 +2,6 @@ package com.rique.sodiumfpscapfix.mixin;
 
 import com.rique.sodiumfpscapfix.FpsCapSupport;
 import com.rique.sodiumfpscapfix.gui.FpsCapTextBoxControl;
-import me.jellysquid.mods.sodium.client.gui.SodiumGameOptionPages;
 import me.jellysquid.mods.sodium.client.gui.options.Option;
 import me.jellysquid.mods.sodium.client.gui.options.OptionPage;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(SodiumGameOptionPages.class)
+@Mixin(targets = "me.jellysquid.mods.sodium.client.gui.SodiumGameOptionPages")
 public abstract class SodiumGameOptionPagesMixin {
     @SuppressWarnings("unchecked")
     @Inject(method = "general", at = @At("RETURN"))

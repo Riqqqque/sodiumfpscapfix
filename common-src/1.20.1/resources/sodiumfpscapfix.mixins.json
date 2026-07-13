@@ -1,15 +1,16 @@
 {
-  "required": true,
+  "required": false,
   "package": "com.rique.sodiumfpscapfix.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "MinecraftMixin",
     "OptionImplAccessor",
     "OptionImplMixin",
+    "OptionInstanceMixin",
     "OptionsMixin",
     "SodiumGameOptionPagesMixin"
   ],
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   }
 }

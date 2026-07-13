@@ -13,6 +13,7 @@ dependencies {
 
     modCompileOnly files(rootProject.file("deps/sodium-fabric-1.21.11.jar"))
     modRuntimeOnly files(rootProject.file("deps/sodium-fabric-1.21.11.jar"))
+    modCompileOnly files(rootProject.file("deps/reeses-sodium-options-fabric-1.21.11-compile.jar"))
 }
 
 loom {

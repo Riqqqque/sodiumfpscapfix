@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = "Fabric"
+            url = "https://maven.fabricmc.net/"
+        }
+        maven {
+            name = "NeoForged"
+            url = "https://maven.neoforged.net/releases/"
+        }
+        mavenCentral()
+    }
+}
+
+rootProject.name = "sodiumfpscapfix-26.2"
+
+include("fabric-26.2")
+include("neoforge-26.2")
+
+project(":fabric-26.2").projectDir = file("../fabric-26.2")
+project(":neoforge-26.2").projectDir = file("../neoforge-26.2")

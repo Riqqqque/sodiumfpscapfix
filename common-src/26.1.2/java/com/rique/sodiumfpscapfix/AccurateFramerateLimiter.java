@@ -18,14 +18,15 @@ public final class AccurateFramerateLimiter {
     }
 
     public static void limitDisplayFPS(int framerateLimit) {
-        if (framerateLimit <= 0) {
+        long now = System.nanoTime();
+
+        if (framerateLimit <= 0 || Thread.currentThread().isInterrupted()) {
+            resetTiming(framerateLimit, now);
             return;
         }
 
         if (framerateLimit != lastFramerateLimit) {
-            averageOvershootNs = 0L;
-            lastFramerateLimit = framerateLimit;
-            lastFrameTimeNs = System.nanoTime();
+            resetTiming(framerateLimit, now);
         }
 
         long targetTimePerFrameNs = (ONE_SECOND_NS + framerateLimit - 1L) / framerateLimit;
@@ -34,14 +35,17 @@ public final class AccurateFramerateLimiter {
         long remainingTimeNs;
 
         while ((remainingTimeNs = targetTimeNs - System.nanoTime()) > 0L) {
+            if (Thread.currentThread().isInterrupted()) {
+                resetTiming(framerateLimit, System.nanoTime());
+                return;
+            }
+
             if (remainingTimeNs > averageOvershootNs + spinSafetyBufferNs) {
                 long sleepStartTimeNs = System.nanoTime();
                 long expectedSleepTimeNs = remainingTimeNs - averageOvershootNs - spinSafetyBufferNs;
 
-                if (!Thread.interrupted()) {
-                    LockSupport.parkNanos(expectedSleepTimeNs);
-                    updateAverageOvershoot(System.nanoTime() - sleepStartTimeNs - expectedSleepTimeNs);
-                }
+                LockSupport.parkNanos(expectedSleepTimeNs);
+                updateAverageOvershoot(System.nanoTime() - sleepStartTimeNs - expectedSleepTimeNs);
             } else {
                 Thread.onSpinWait();
             }
@@ -50,13 +54,19 @@ public final class AccurateFramerateLimiter {
         lastFrameTimeNs = System.nanoTime();
     }
 
+    private static void resetTiming(int framerateLimit, long now) {
+        averageOvershootNs = 0L;
+        lastFramerateLimit = framerateLimit;
+        lastFrameTimeNs = now;
+    }
+
     private static long spinSafetyBufferNs(int framerateLimit) {
         return framerateLimit >= HIGH_ACCURACY_FPS_THRESHOLD ? HIGH_ACCURACY_SPIN_SAFETY_BUFFER_NS : NORMAL_SPIN_SAFETY_BUFFER_NS;
     }
 
     private static void updateAverageOvershoot(long currentOvershootNs) {
         if (currentOvershootNs > 0L && currentOvershootNs < MAX_CURRENT_OVERSHOOT_NS) {
-            averageOvershootNs = (long) ((0.1 * currentOvershootNs) + (0.9 * averageOvershootNs));
+            averageOvershootNs = (currentOvershootNs + (9L * averageOvershootNs)) / 10L;
             averageOvershootNs = Math.min(averageOvershootNs, MAX_AVERAGE_OVERSHOOT_NS);
         }
     }

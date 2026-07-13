@@ -146,7 +146,8 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
                 return;
             }
 
-            this.option.setValue(FpsCapSupport.parseAndClamp(text));
+            int value = FpsCapSupport.parseAndClamp(text);
+            this.option.setValue(value);
         }
 
         private void syncFromOption() {
@@ -155,8 +156,12 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
 
         private void setText(String value) {
             this.syncingText = true;
-            this.editBox.setValue(value);
-            this.syncingText = false;
+
+            try {
+                this.editBox.setValue(value);
+            } finally {
+                this.syncingText = false;
+            }
         }
 
         private void updateTextBoxBounds() {

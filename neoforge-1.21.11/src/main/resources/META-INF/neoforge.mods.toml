@@ -11,7 +11,7 @@ version="${version}"
 displayName="Sodium FPS Cap Fix"
 displayTest="IGNORE_ALL_VERSION"
 logoFile="assets/sodiumfpscapfix/icon.png"
-description='''Replaces Sodium's FPS cap slider with a textbox and removes the 260 FPS ceiling.'''
+description='''Adds an FPS cap textbox and removes the 260 FPS ceiling.'''
 
 [[dependencies.sodiumfpscapfix]]
 modId="neoforge"
@@ -29,7 +29,7 @@ side="CLIENT"
 
 [[dependencies.sodiumfpscapfix]]
 modId="sodium"
-type="required"
+type="optional"
 versionRange="[0,)"
 ordering="AFTER"
 side="CLIENT"

@@ -1,0 +1,48 @@
+plugins {
+    id "net.neoforged.moddev" version "2.0.141"
+}
+
+base {
+    archivesName = "${rootProject.property("archives_base_name")}-neoforge-${rootProject.property("minecraft_262")}"
+}
+
+dependencies {
+    compileOnly files(rootProject.file("../deps/sodium-neoforge-26.2-mod.jar"))
+}
+
+sourceSets {
+    main {
+        java.srcDir(rootProject.file("../common-src/26.2/java"))
+        resources.srcDir(rootProject.file("../common-src/26.2/resources"))
+    }
+}
+
+neoForge {
+    version = rootProject.property("neoforge_262")
+
+    runs {
+        client {
+            client()
+        }
+    }
+
+    mods {
+        sodiumfpscapfix {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+processResources {
+    def props = [
+            version          : project.version,
+            minecraft_version: rootProject.property("minecraft_262"),
+            neoforge_version : rootProject.property("neoforge_262")
+    ]
+
+    inputs.properties(props)
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand(props)
+    }
+}

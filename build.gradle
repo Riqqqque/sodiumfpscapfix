@@ -58,6 +58,44 @@ tasks.register("collectModrinthJars", Copy) {
     }
 }
 
+tasks.register("buildMinecraft2612", GradleBuild) {
+    dir = file("mc-26.1.2-build")
+    tasks = ["buildAll"]
+}
+
+tasks.register("buildMinecraft262", GradleBuild) {
+    dir = file("mc-26.2-build")
+    tasks = ["buildAll"]
+}
+
+def expectedReleaseJarNames = [
+        "sodiumfpscapfix-fabric-1.20.1-${project.version}.jar",
+        "sodiumfpscapfix-fabric-1.21.1-${project.version}.jar",
+        "sodiumfpscapfix-fabric-1.21.11-${project.version}.jar",
+        "sodiumfpscapfix-fabric-26.1.2-${project.version}.jar",
+        "sodiumfpscapfix-fabric-26.2-${project.version}.jar",
+        "sodiumfpscapfix-neoforge-1.21.1-${project.version}.jar",
+        "sodiumfpscapfix-neoforge-1.21.11-${project.version}.jar",
+        "sodiumfpscapfix-neoforge-26.1.2-${project.version}.jar",
+        "sodiumfpscapfix-neoforge-26.2-${project.version}.jar"
+]
+
+tasks.register("verifyModrinthJars") {
+    dependsOn(
+            tasks.named("collectModrinthJars"),
+            tasks.named("buildMinecraft2612"),
+            tasks.named("buildMinecraft262")
+    )
+
+    doLast {
+        def missingJars = expectedReleaseJarNames.findAll { !modrinthUploadDir.file(it).asFile.isFile() }
+
+        if (!missingJars.isEmpty()) {
+            throw new GradleException("Missing release jars: ${missingJars.join(', ')}")
+        }
+    }
+}
+
 tasks.register("buildAll") {
-    dependsOn(tasks.named("collectModrinthJars"))
+    dependsOn(tasks.named("verifyModrinthJars"))
 }

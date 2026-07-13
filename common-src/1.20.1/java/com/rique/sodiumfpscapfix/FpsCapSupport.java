@@ -13,11 +13,11 @@ public final class FpsCapSupport {
     }
 
     public static boolean isFrameRateLimitOption(Option<?> option) {
-        return isFrameRateLimitName(option.getName());
+        return option != null && isFrameRateLimitName(option.getName());
     }
 
     public static boolean isFrameRateLimitName(Component name) {
-        return name.getString().equals(FPS_LIMIT_NAME.getString());
+        return name != null && name.getString().equals(FPS_LIMIT_NAME.getString());
     }
 
     public static int clamp(int value) {
