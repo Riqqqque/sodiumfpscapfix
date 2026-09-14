@@ -13,6 +13,9 @@ dependencies {
 
     modCompileOnly files(rootProject.file("deps/sodium-fabric-1.21.1-0.8.12.jar"))
     modRuntimeOnly files(rootProject.file("deps/sodium-fabric-1.21.1-0.8.12.jar"))
+
+    testImplementation "org.junit.jupiter:junit-jupiter:5.12.2"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 configurations {
@@ -109,6 +112,15 @@ sourceSets {
             !it.name.contains("sodium-fabric-1.21.1-0.8.12")
         }
         compileClasspath += files(jellysquidSodiumNamedJar)
+    }
+}
+
+tasks.named("test") {
+    useJUnitPlatform()
+    def testRunDir = layout.buildDirectory.dir("test-run")
+    workingDir = testRunDir
+    doFirst {
+        testRunDir.get().asFile.mkdirs()
     }
 }
 
