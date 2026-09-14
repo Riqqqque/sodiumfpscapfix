@@ -14,6 +14,7 @@ import net.caffeinemc.mods.sodium.client.util.Dim2i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -31,7 +32,7 @@ public final class FpsCapTextBoxControl implements Control {
 
     @Override
     public ControlElement createElement(Screen screen, AbstractOptionList list, Dim2i dim, ColorTheme theme) {
-        return new TextBoxControlElement(list, this.option, dim, theme);
+        return new TextBoxControlElement(screen, list, this.option, dim, theme);
     }
 
     @Override
@@ -42,13 +43,15 @@ public final class FpsCapTextBoxControl implements Control {
     private static final class TextBoxControlElement extends ControlElement {
         private static final int BOX_PADDING = 3;
 
+        private final Screen screen;
         private final IntegerOption option;
         private final EditBox editBox;
         private boolean syncingText;
 
-        private TextBoxControlElement(AbstractOptionList list, IntegerOption option, Dim2i dim, ColorTheme theme) {
+        private TextBoxControlElement(Screen screen, AbstractOptionList list, IntegerOption option, Dim2i dim, ColorTheme theme) {
             super(list, dim, theme);
 
+            this.screen = screen;
             this.option = option;
             this.editBox = new EditBox(
                     Minecraft.getInstance().font,
@@ -102,22 +105,14 @@ public final class FpsCapTextBoxControl implements Control {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (!this.option.isEnabled()) {
+            if (!this.option.isEnabled() || !this.isMouseOverBox(mouseX, mouseY)) {
+                this.finishEditing();
                 return false;
             }
 
-            boolean clickedRow = this.isMouseOver(mouseX, mouseY);
-            boolean clickedBox = this.isMouseOverBox(mouseX, mouseY);
-
-            this.focused = clickedRow;
-            this.editBox.setFocused(clickedBox);
-
-            if (clickedBox) {
-                this.editBox.mouseClicked(mouseX, mouseY, button);
-                return true;
-            }
-
-            return clickedRow;
+            this.focusEditor();
+            this.editBox.mouseClicked(mouseX, mouseY, button);
+            return true;
         }
 
         @Override
@@ -139,10 +134,8 @@ public final class FpsCapTextBoxControl implements Control {
             if (keyCode == InputConstants.KEY_ESCAPE
                     || keyCode == InputConstants.KEY_RETURN
                     || keyCode == InputConstants.KEY_NUMPADENTER) {
-                this.syncFromOption();
-                this.editBox.setFocused(false);
-                this.focused = false;
-                return true;
+                this.finishEditing();
+                return false;
             }
 
             return this.editBox.keyPressed(keyCode, scanCode, modifiers);
@@ -155,12 +148,13 @@ public final class FpsCapTextBoxControl implements Control {
 
         @Override
         public void setFocused(boolean focused) {
-            this.focused = focused;
-            this.editBox.setFocused(focused);
-
             if (!focused) {
-                this.syncFromOption();
+                this.finishEditing();
+                return;
             }
+
+            this.focused = true;
+            this.editBox.setFocused(true);
         }
 
         private void onTextChanged(String text) {
@@ -176,6 +170,24 @@ public final class FpsCapTextBoxControl implements Control {
 
         private void syncFromOption() {
             this.setText(Integer.toString(FpsCapSupport.clamp(this.option.getValidatedValue())));
+        }
+
+        private void finishEditing() {
+            if (this.editBox.isFocused()) {
+                this.syncFromOption();
+            }
+
+            this.editBox.setFocused(false);
+            this.focused = false;
+        }
+
+        private void focusEditor() {
+            if (this.screen.getFocused() instanceof ContainerEventHandler container) {
+                container.setFocused(null);
+            }
+
+            this.screen.setFocused(this.list);
+            this.list.setFocused(this);
         }
 
         private void setText(String value) {

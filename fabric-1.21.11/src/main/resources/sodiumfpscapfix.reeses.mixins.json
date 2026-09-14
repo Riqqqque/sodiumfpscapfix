@@ -1,10 +1,9 @@
 {
   "required": false,
   "package": "com.rique.sodiumfpscapfix.mixin",
+  "plugin": "com.rique.sodiumfpscapfix.mixin.ReeseMixinPlugin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "ReeseOptionRowFactoryMixin"
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 0
   }

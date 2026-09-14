@@ -27,7 +27,7 @@ public abstract class OptionsMixin {
     }
 
     @ModifyConstant(
-            method = "method_42511(I)Ljava/lang/Integer;",
+            method = "lambda$new$5(I)Ljava/lang/Integer;",
             constant = @Constant(intValue = 10),
             require = 0
     )
@@ -36,7 +36,7 @@ public abstract class OptionsMixin {
     }
 
     @ModifyConstant(
-            method = "method_42557(Ljava/lang/Integer;)I",
+            method = "lambda$new$6(Ljava/lang/Integer;)I",
             constant = @Constant(intValue = 10),
             require = 0
     )

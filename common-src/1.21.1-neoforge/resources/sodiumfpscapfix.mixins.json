@@ -1,16 +1,13 @@
 {
   "required": false,
   "package": "com.rique.sodiumfpscapfix.mixin",
+  "plugin": "com.rique.sodiumfpscapfix.mixin.SodiumFpsCapFixMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "IntegerOptionMixin",
-    "LegacyOptionImplAccessor",
-    "LegacyOptionImplMixin",
-    "LegacySodiumGameOptionPagesMixin",
     "MinecraftMixin",
+    "NeoForgeOptionsMixin",
     "OptionInstanceMixin",
-    "OptionsMixin",
-    "StatefulOptionMixin"
+    "OptionsMixin"
   ],
   "injectors": {
     "defaultRequire": 0

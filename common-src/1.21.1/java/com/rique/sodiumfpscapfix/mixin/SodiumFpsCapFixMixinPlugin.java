@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.service.MixinService;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -85,7 +87,57 @@ public final class SodiumFpsCapFixMixinPlugin implements IMixinConfigPlugin {
             MixinService.getService().getBytecodeProvider().getClassNode(className, false);
             return true;
         } catch (ClassNotFoundException | IOException ignored) {
+            return hasNeoForgeModClass(className);
+        }
+    }
+
+    private static boolean hasNeoForgeModClass(String className) {
+        try {
+            Class<?> loadingModListClass = Class.forName(
+                    "net.neoforged.fml.loading.LoadingModList",
+                    false,
+                    SodiumFpsCapFixMixinPlugin.class.getClassLoader()
+            );
+            Object loadingModList = loadingModListClass.getMethod("get").invoke(null);
+
+            if (loadingModList == null) {
+                return false;
+            }
+
+            Object sodiumModFileInfo = loadingModList.getClass()
+                    .getMethod("getModFileById", String.class)
+                    .invoke(loadingModList, "sodium");
+
+            if (sodiumModFileInfo == null) {
+                return false;
+            }
+
+            Object sodiumModFile = sodiumModFileInfo.getClass().getMethod("getFile").invoke(sodiumModFileInfo);
+            return hasModFileResource(sodiumModFile, className.replace('.', '/') + ".class");
+        } catch (ReflectiveOperationException | LinkageError ignored) {
             return false;
+        } catch (RuntimeException ignored) {
+            return false;
+        }
+    }
+
+    private static boolean hasModFileResource(Object modFile, String resourceName)
+            throws ReflectiveOperationException {
+        try {
+            Object contents = modFile.getClass().getMethod("getContents").invoke(modFile);
+            Class<?> contentsClass = Class.forName(
+                    "net.neoforged.fml.jarcontents.JarContents",
+                    false,
+                    SodiumFpsCapFixMixinPlugin.class.getClassLoader()
+            );
+            return Boolean.TRUE.equals(contentsClass.getMethod("containsFile", String.class)
+                    .invoke(contents, resourceName));
+        } catch (NoSuchMethodException ignored) {
+            String[] resourcePath = resourceName.split("/");
+            Path resource = (Path) modFile.getClass()
+                    .getMethod("findResource", String[].class)
+                    .invoke(modFile, (Object) resourcePath);
+            return Files.isRegularFile(resource);
         }
     }
 }

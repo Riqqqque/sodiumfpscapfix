@@ -33,9 +33,16 @@ subprojects {
         options.release = javaVersion
         options.encoding = "UTF-8"
     }
+
+    tasks.withType(Jar).configureEach {
+        from(rootProject.file("LICENSE")) {
+            rename { "LICENSE_sodiumfpscapfix" }
+        }
+    }
 }
 
 def modrinthUploadDir = layout.projectDirectory.dir("modrinth-upload")
+def releaseVersion = project.version.toString()
 
 tasks.register("collectModrinthJars", Copy) {
     dependsOn(subprojects.collect { it.tasks.named("build") })
@@ -92,6 +99,54 @@ tasks.register("verifyModrinthJars") {
 
         if (!missingJars.isEmpty()) {
             throw new GradleException("Missing release jars: ${missingJars.join(', ')}")
+        }
+
+        def actualJarNames = fileTree(modrinthUploadDir.asFile) {
+            include "*.jar"
+        }.files.collect { it.name }.toSet()
+        def unexpectedJars = actualJarNames - expectedReleaseJarNames.toSet()
+
+        if (!unexpectedJars.isEmpty()) {
+            throw new GradleException("Unexpected release jars: ${unexpectedJars.sort().join(', ')}")
+        }
+
+        expectedReleaseJarNames.each { jarName ->
+            def jarFile = modrinthUploadDir.file(jarName).asFile
+            def fabric = jarName.contains("-fabric-")
+            def metadataPath = fabric ? "fabric.mod.json" : "META-INF/neoforge.mods.toml"
+            def requiredEntries = [
+                    "LICENSE_sodiumfpscapfix",
+                    "assets/sodiumfpscapfix/icon.png",
+                    "sodiumfpscapfix.mixins.json",
+                    metadataPath
+            ]
+
+            new java.util.zip.ZipFile(jarFile).withCloseable { archive ->
+                def entries = java.util.Collections.list(archive.entries())
+                def entryNames = entries.collect { it.name }
+                def duplicateEntries = entryNames.groupBy { it }.findAll { name, matches -> matches.size() > 1 }.keySet()
+                def unsafeEntries = entryNames.findAll { it.startsWith("/") || it == ".." || it.startsWith("../") || it.contains("/../") }
+                def missingEntries = requiredEntries.findAll { archive.getEntry(it) == null }
+
+                if (!duplicateEntries.isEmpty()) {
+                    throw new GradleException("Duplicate entries in ${jarName}: ${duplicateEntries.sort().join(', ')}")
+                }
+
+                if (!unsafeEntries.isEmpty()) {
+                    throw new GradleException("Unsafe entries in ${jarName}: ${unsafeEntries.sort().join(', ')}")
+                }
+
+                if (!missingEntries.isEmpty()) {
+                    throw new GradleException("Missing entries in ${jarName}: ${missingEntries.join(', ')}")
+                }
+
+                def metadata = archive.getInputStream(archive.getEntry(metadataPath)).getText("UTF-8")
+                def expectedVersion = fabric ? "\"version\": \"${releaseVersion}\"" : "version=\"${releaseVersion}\""
+
+                if (!metadata.contains(expectedVersion)) {
+                    throw new GradleException("Incorrect version metadata in ${jarName}")
+                }
+            }
         }
     }
 }

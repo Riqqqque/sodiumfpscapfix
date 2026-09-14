@@ -85,22 +85,15 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (!this.option.isAvailable()) {
+            if (!this.option.isAvailable() || !this.isMouseOverBox(mouseX, mouseY)) {
+                this.finishEditing();
                 return false;
             }
 
-            boolean clickedRow = this.dim.containsCursor(mouseX, mouseY);
-            boolean clickedBox = this.isMouseOverBox(mouseX, mouseY);
-
-            this.focused = clickedRow;
-            this.editBox.setFocused(clickedBox);
-
-            if (clickedBox) {
-                this.editBox.mouseClicked(mouseX, mouseY, button);
-                return true;
-            }
-
-            return clickedRow;
+            this.focused = true;
+            this.editBox.setFocused(true);
+            this.editBox.mouseClicked(mouseX, mouseY, button);
+            return true;
         }
 
         @Override
@@ -110,17 +103,13 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
             }
 
             if (keyCode == InputConstants.KEY_ESCAPE) {
-                this.syncFromOption();
-                this.editBox.setFocused(false);
-                this.focused = false;
-                return true;
+                this.finishEditing();
+                return false;
             }
 
             if (keyCode == InputConstants.KEY_RETURN || keyCode == InputConstants.KEY_NUMPADENTER) {
-                this.syncFromOption();
-                this.editBox.setFocused(false);
-                this.focused = false;
-                return true;
+                this.finishEditing();
+                return false;
             }
 
             return this.editBox.keyPressed(keyCode, scanCode, modifiers);
@@ -133,12 +122,13 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
 
         @Override
         public void setFocused(boolean focused) {
-            this.focused = focused;
-            this.editBox.setFocused(focused);
-
             if (!focused) {
-                this.syncFromOption();
+                this.finishEditing();
+                return;
             }
+
+            this.focused = true;
+            this.editBox.setFocused(true);
         }
 
         private void onTextChanged(String text) {
@@ -152,6 +142,15 @@ public final class FpsCapTextBoxControl implements Control<Integer> {
 
         private void syncFromOption() {
             this.setText(Integer.toString(FpsCapSupport.clamp(this.option.getValue())));
+        }
+
+        private void finishEditing() {
+            if (this.editBox.isFocused()) {
+                this.syncFromOption();
+            }
+
+            this.editBox.setFocused(false);
+            this.focused = false;
         }
 
         private void setText(String value) {

@@ -92,22 +92,15 @@ public final class JellysquidFpsCapTextBoxControl implements Control<Integer> {
         }
 
         public boolean method_25402(double mouseX, double mouseY, int button) {
-            if (!this.option.isAvailable()) {
+            if (!this.option.isAvailable() || !this.isMouseOverBox(mouseX, mouseY)) {
+                this.finishEditing();
                 return false;
             }
 
-            boolean clickedRow = this.dim.containsCursor(mouseX, mouseY);
-            boolean clickedBox = this.isMouseOverBox(mouseX, mouseY);
-
-            this.focused = clickedRow;
-            this.editBox.setFocused(clickedBox);
-
-            if (clickedBox) {
-                this.editBox.mouseClicked(mouseX, mouseY, button);
-                return true;
-            }
-
-            return clickedRow;
+            this.focused = true;
+            this.editBox.setFocused(true);
+            this.editBox.mouseClicked(mouseX, mouseY, button);
+            return true;
         }
 
         public boolean method_25404(int keyCode, int scanCode, int modifiers) {
@@ -118,10 +111,8 @@ public final class JellysquidFpsCapTextBoxControl implements Control<Integer> {
             if (keyCode == InputConstants.KEY_ESCAPE
                     || keyCode == InputConstants.KEY_RETURN
                     || keyCode == InputConstants.KEY_NUMPADENTER) {
-                this.syncFromOption();
-                this.editBox.setFocused(false);
-                this.focused = false;
-                return true;
+                this.finishEditing();
+                return false;
             }
 
             return this.editBox.keyPressed(keyCode, scanCode, modifiers);
@@ -133,12 +124,13 @@ public final class JellysquidFpsCapTextBoxControl implements Control<Integer> {
 
         @Override
         public void method_25365(boolean focused) {
-            this.focused = focused;
-            this.editBox.setFocused(focused);
-
             if (!focused) {
-                this.syncFromOption();
+                this.finishEditing();
+                return;
             }
+
+            this.focused = true;
+            this.editBox.setFocused(true);
         }
 
         private void onTextChanged(String text) {
@@ -153,6 +145,15 @@ public final class JellysquidFpsCapTextBoxControl implements Control<Integer> {
 
         private void syncFromOption() {
             this.setText(Integer.toString(FpsCapSupport.clamp(this.option.getValue())));
+        }
+
+        private void finishEditing() {
+            if (this.editBox.isFocused()) {
+                this.syncFromOption();
+            }
+
+            this.editBox.setFocused(false);
+            this.focused = false;
         }
 
         private void setText(String value) {

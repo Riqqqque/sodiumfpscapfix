@@ -20,12 +20,12 @@ sourceSets {
 
     legacySodium {
         java.srcDir(rootProject.file("common-src/1.21.1-neoforge/java"))
-        compileClasspath += sourceSets.main.output + (sourceSets.main.compileClasspath - files(rootProject.file("deps/sodium-neoforge-1.21.1-0.8.12-alpha.4-mod.jar")))
+        compileClasspath += sourceSets.main.output + (sourceSets.main.compileClasspath - files(rootProject.file("deps/sodium-neoforge-1.21.1-0.8.12-mod.jar")))
     }
 }
 
 dependencies {
-    compileOnly files(rootProject.file("deps/sodium-neoforge-1.21.1-0.8.12-alpha.4-mod.jar"))
+    compileOnly files(rootProject.file("deps/sodium-neoforge-1.21.1-0.8.12-mod.jar"))
     legacySodiumCompileOnly files(rootProject.file("deps/sodium-neoforge-1.21.1.jar"))
 }
 

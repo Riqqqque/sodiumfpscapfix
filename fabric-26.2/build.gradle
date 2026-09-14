@@ -1,5 +1,5 @@
 plugins {
-    id "net.fabricmc.fabric-loom" version "1.16-SNAPSHOT"
+    id "net.fabricmc.fabric-loom" version "1.17.17"
 }
 
 base {
@@ -12,6 +12,7 @@ dependencies {
 
     compileOnly files(rootProject.file("../deps/sodium-fabric-26.2.jar"))
     runtimeOnly files(rootProject.file("../deps/sodium-fabric-26.2.jar"))
+    compileOnly files(rootProject.file("../deps/reeses-sodium-options-fabric-26.2-compile.jar"))
 }
 
 loom {

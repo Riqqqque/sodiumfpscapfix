@@ -15,8 +15,11 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
+import java.lang.ref.WeakReference;
+
 public final class SodiumFpsCapFixTextBoxOptionRow extends AbstractOptionRow {
     private static final int BOX_PADDING = 3;
+    private static WeakReference<SodiumFpsCapFixTextBoxOptionRow> activeEditor = new WeakReference<>(null);
 
     private final IntegerOption option;
     private final EditBox editBox;
@@ -76,21 +79,14 @@ public final class SodiumFpsCapFixTextBoxOptionRow extends AbstractOptionRow {
 
     @Override
     protected boolean controlMouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (!this.option.isEnabled()) {
+        if (!this.option.isEnabled() || !this.isMouseOverBox(event.x(), event.y())) {
+            this.finishEditing();
             return false;
         }
 
-        boolean clickedRow = this.isMouseOverRow(event.x(), event.y());
-        boolean clickedBox = this.isMouseOverBox(event.x(), event.y());
-
-        this.editBox.setFocused(clickedBox);
-
-        if (clickedBox) {
-            this.editBox.mouseClicked(event, doubleClick);
-            return true;
-        }
-
-        return clickedRow;
+        this.focusEditor();
+        this.editBox.mouseClicked(event, doubleClick);
+        return true;
     }
 
     @Override
@@ -105,14 +101,21 @@ public final class SodiumFpsCapFixTextBoxOptionRow extends AbstractOptionRow {
 
     @Override
     protected boolean controlKeyPressed(KeyEvent event) {
+        if (!this.editBox.isFocused()
+                && this.isRowFocused()
+                && this.option.isEnabled()
+                && !event.isEscape()
+                && !event.isConfirmation()) {
+            this.focusEditor();
+        }
+
         if (!this.editBox.isFocused()) {
-            return false;
+            return super.controlKeyPressed(event);
         }
 
         if (event.isEscape() || event.isConfirmation()) {
-            this.syncFromOption();
-            this.editBox.setFocused(false);
-            return true;
+            this.finishEditing();
+            return false;
         }
 
         return this.editBox.keyPressed(event);
@@ -120,6 +123,10 @@ public final class SodiumFpsCapFixTextBoxOptionRow extends AbstractOptionRow {
 
     @Override
     public boolean charTyped(CharacterEvent event) {
+        if (!this.editBox.isFocused() && this.isRowFocused() && this.option.isEnabled()) {
+            this.focusEditor();
+        }
+
         return this.editBox.isFocused() && this.editBox.charTyped(event);
     }
 
@@ -129,7 +136,7 @@ public final class SodiumFpsCapFixTextBoxOptionRow extends AbstractOptionRow {
             return false;
         }
 
-        this.editBox.setFocused(true);
+        this.focusEditor();
         return true;
     }
 
@@ -139,15 +146,13 @@ public final class SodiumFpsCapFixTextBoxOptionRow extends AbstractOptionRow {
             return false;
         }
 
-        this.syncFromOption();
-        this.editBox.setFocused(false);
-        return true;
+        this.finishEditing();
+        return false;
     }
 
     @Override
     protected void onControlFocusLost() {
-        this.syncFromOption();
-        this.editBox.setFocused(false);
+        this.finishEditing();
     }
 
     @Override
@@ -166,6 +171,46 @@ public final class SodiumFpsCapFixTextBoxOptionRow extends AbstractOptionRow {
 
     private void syncFromOption() {
         this.setText(Integer.toString(FpsCapSupport.clamp(this.option.getValidatedValue())));
+    }
+
+    private void finishEditing() {
+        if (this.editBox.isFocused()) {
+            this.syncFromOption();
+        }
+
+        this.editBox.setFocused(false);
+        this.clearActiveEditor();
+    }
+
+    public static boolean finishActiveEditingIfOutside(double mouseX, double mouseY) {
+        SodiumFpsCapFixTextBoxOptionRow row = activeEditor.get();
+        if (row != null && !row.isMouseOverBox(mouseX, mouseY)) {
+            row.finishEditing();
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean finishActiveEditing() {
+        SodiumFpsCapFixTextBoxOptionRow row = activeEditor.get();
+        if (row == null) {
+            return false;
+        }
+
+        row.finishEditing();
+        return true;
+    }
+
+    private void focusEditor() {
+        this.editBox.setFocused(true);
+        activeEditor = new WeakReference<>(this);
+    }
+
+    private void clearActiveEditor() {
+        if (activeEditor.get() == this) {
+            activeEditor.clear();
+        }
     }
 
     private void setText(String value) {

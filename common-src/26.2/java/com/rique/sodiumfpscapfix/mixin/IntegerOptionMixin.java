@@ -16,7 +16,7 @@ public abstract class IntegerOptionMixin {
     @Inject(method = "validateValue", at = @At("HEAD"), cancellable = true)
     private void sodiumfpscapfix$allowAnyFpsCap(Integer value, CallbackInfoReturnable<Integer> cir) {
         if (this.sodiumfpscapfix$isFrameRateLimitOption()) {
-            cir.setReturnValue(value == null ? FpsCapConstants.MIN_FPS_CAP : FpsCapSupport.clamp(value));
+            cir.setReturnValue(sodiumfpscapfix$clampPreservingIdentity(value));
         }
     }
 
@@ -29,5 +29,18 @@ public abstract class IntegerOptionMixin {
 
     private boolean sodiumfpscapfix$isFrameRateLimitOption() {
         return FpsCapSupport.isFrameRateLimitName(((Option) (Object) this).getName());
+    }
+
+    private static Integer sodiumfpscapfix$clampPreservingIdentity(Integer value) {
+        if (value == null) {
+            return FpsCapConstants.MIN_FPS_CAP;
+        }
+
+        int clamped = FpsCapSupport.clamp(value);
+        if (clamped == value.intValue()) {
+            return value;
+        }
+
+        return clamped;
     }
 }

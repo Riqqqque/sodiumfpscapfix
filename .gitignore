@@ -3,7 +3,7 @@
 /.tmp-*/
 /META-INF/
 /.idea/
-/.vscode/
+**/.vscode/
 /.codex-remote-attachments/
 *.iml
 *.ipr

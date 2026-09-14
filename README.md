@@ -1,6 +1,6 @@
 # Sodium FPS Cap Fix
 
-Sodium FPS Cap Fix adds a textbox for Minecraft's FPS cap and removes the vanilla 260 FPS ceiling so you can type any cap you want. It still replaces Sodium's FPS cap control when Sodium is installed, but Sodium is no longer required.
+Sodium FPS Cap Fix adds a textbox for Minecraft's FPS cap and removes the vanilla 260 FPS ceiling. It accepts exact caps from 10 to 1,000,000. The mod replaces Sodium's FPS cap control when Sodium is installed, but Sodium is not required.
 
 ## Supported targets
 
@@ -13,6 +13,8 @@ Sodium FPS Cap Fix adds a textbox for Minecraft's FPS cap and removes the vanill
 - NeoForge 1.21.11
 - NeoForge 26.1.2
 - NeoForge 26.2
+
+Reese's Sodium Options is supported on Fabric 1.21.11 and Fabric 26.2.
 
 ## Build
 
