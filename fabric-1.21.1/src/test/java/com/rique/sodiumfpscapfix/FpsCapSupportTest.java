@@ -1,9 +1,13 @@
 package com.rique.sodiumfpscapfix;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FpsCapSupportTest {
     @Test
@@ -52,5 +56,26 @@ class FpsCapSupportTest {
         assertThrows(NumberFormatException.class, () -> FpsCapSupport.parseAndClamp("1e5"));
         assertThrows(NumberFormatException.class, () -> FpsCapSupport.parseAndClamp("0x10"));
         assertThrows(NumberFormatException.class, () -> FpsCapSupport.parseAndClamp("١٢٣"));
+    }
+
+    @Test
+    void identifiesFrameRateLimitOption() {
+        assertTrue(FpsCapSupport.isFrameRateLimitName(Component.translatable("options.framerateLimit")));
+        assertTrue(FpsCapSupport.isFrameRateLimitName(Component.translatable("options.framerateLimit", "arg")));
+
+        assertFalse(FpsCapSupport.isFrameRateLimitName(null));
+        assertFalse(FpsCapSupport.isFrameRateLimitName(Component.translatable("options.renderDistance")));
+        assertFalse(FpsCapSupport.isFrameRateLimitName(Component.literal("unrelated")));
+    }
+
+    @Test
+    void identifiesSodiumFrameRateLimitId() {
+        assertTrue(FpsCapSupport.isSodiumFrameRateLimitId(
+                ResourceLocation.fromNamespaceAndPath("sodium", "general.framerate_limit")));
+
+        assertFalse(FpsCapSupport.isSodiumFrameRateLimitId(
+                ResourceLocation.fromNamespaceAndPath("sodium", "general.render_distance")));
+        assertFalse(FpsCapSupport.isSodiumFrameRateLimitId(
+                ResourceLocation.fromNamespaceAndPath("other", "general.framerate_limit")));
     }
 }
