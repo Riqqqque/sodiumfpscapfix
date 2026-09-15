@@ -4,7 +4,6 @@
 /META-INF/
 /.idea/
 **/.vscode/
-/.codex-remote-attachments/
 *.iml
 *.ipr
 *.iws

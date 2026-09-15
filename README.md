@@ -38,6 +38,10 @@ Build the 26.2 targets with:
 
 The project expects the Sodium dependency jars in the `deps/` folder.
 
+Java 17 builds the Fabric 1.20.1 target, Java 21 the 1.21.1/1.21.11 targets, and Java 25 the 26.x targets.
+
+Shared code lives in `common-src/<mc>/java`. JUnit tests live in `fabric-1.21.1/src/test` and run as part of `buildAll`.
+
 ## Releases
 
 After building, the main jars are collected into `modrinth-upload/` so they're all in one place for publishing.
