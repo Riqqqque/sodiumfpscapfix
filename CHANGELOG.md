@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.33
+
+- Fixed Sodium detection on NeoForge failing with "ModLauncher service does not currently support retrieval of untransformed bytecode", which silently disabled the FPS textbox whenever Sodium was installed on NeoForge.
+
 ## 1.0.32
 
 - Fixed clicks, Tab focus, Enter, and Escape handling in every Sodium FPS textbox so Apply, Done, and back navigation keep working.

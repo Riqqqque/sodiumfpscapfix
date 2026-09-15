@@ -52,7 +52,7 @@ public final class SodiumFpsCapFixMixinPlugin implements IMixinConfigPlugin {
         try {
             MixinService.getService().getBytecodeProvider().getClassNode(className, false);
             return true;
-        } catch (ClassNotFoundException | IOException ignored) {
+        } catch (Throwable ignored) {
             return false;
         }
     }
