@@ -11,7 +11,8 @@
   ],
   "environment": "client",
   "mixins": [
-    "sodiumfpscapfix.mixins.json"
+    "sodiumfpscapfix.mixins.json",
+    "sodiumfpscapfix.reeses.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

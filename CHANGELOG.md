@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.34
+
+- Added Reese's Sodium Options support on Fabric 26.1.2 (2.2.4).
+
 ## 1.0.33
 
 - Fixed Sodium detection on NeoForge failing with "ModLauncher service does not currently support retrieval of untransformed bytecode", which silently disabled the FPS textbox whenever Sodium was installed on NeoForge.
